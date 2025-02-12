@@ -7,16 +7,65 @@ interface TravelPlanProps {
 }
 
 export function TravelPlan({ plan }: TravelPlanProps) {
+  const renderMarkdownText = (text: string) => {
+    const lines = text.split('\n');
+    return lines.map((line, index) => {
+      // Headers
+      if (line.startsWith('# ')) {
+        return <h1 key={index} className="text-2xl font-bold mb-4 text-primary">{line.slice(2)}</h1>;
+      }
+      if (line.startsWith('## ')) {
+        return <h2 key={index} className="text-xl font-semibold mb-3 text-primary/90">{line.slice(3)}</h2>;
+      }
+      if (line.startsWith('### ')) {
+        return <h3 key={index} className="text-lg font-medium mb-2 text-primary/80">{line.slice(4)}</h3>;
+      }
+
+      // Lists
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        return (
+          <li key={index} className="ml-4 mb-2 text-sm leading-relaxed">
+            {line.slice(2)}
+          </li>
+        );
+      }
+      if (line.match(/^\d+\./)) {
+        return (
+          <li key={index} className="ml-4 mb-2 text-sm leading-relaxed list-decimal">
+            {line.slice(line.indexOf('.') + 2)}
+          </li>
+        );
+      }
+
+      // Bold text
+      if (line.includes('**')) {
+        const parts = line.split('**');
+        return (
+          <p key={index} className="mb-2 text-sm leading-relaxed">
+            {parts.map((part, i) => (
+              i % 2 === 0 ? part : <strong key={i} className="font-semibold">{part}</strong>
+            ))}
+          </p>
+        );
+      }
+
+      // Regular paragraphs with proper spacing
+      return line.trim() ? (
+        <p key={index} className="mb-4 text-sm leading-relaxed">
+          {line}
+        </p>
+      ) : (
+        <div key={index} className="h-4" /> // Spacing for empty lines
+      );
+    });
+  };
+
   return (
     <Card className="w-full max-w-2xl mx-auto glassmorphism">
       <CardContent className="p-6">
         <ScrollArea className="h-[400px] w-full rounded-md">
-          <div className="space-y-4">
-            {plan.split("\n").map((paragraph, index) => (
-              <p key={index} className="text-sm leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
+          <div className="space-y-1 pr-4">
+            {renderMarkdownText(plan)}
           </div>
         </ScrollArea>
       </CardContent>
