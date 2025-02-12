@@ -24,7 +24,12 @@ Format the response in a clear, easy-to-read way with sections and bullet points
 
 export async function generateTravelPlan(data: TravelFormData) {
   try {
-    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+    const apiKey = localStorage.getItem("GEMINI_API_KEY");
+    if (!apiKey) {
+      throw new Error("Please set your Gemini API key in settings first");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const prompt = generatePrompt(data);
@@ -34,6 +39,8 @@ export async function generateTravelPlan(data: TravelFormData) {
     return text;
   } catch (error) {
     console.error("Error generating travel plan:", error);
-    throw new Error("Failed to generate travel plan. Please try again later.");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to generate travel plan. Please try again later."
+    );
   }
 }

@@ -6,6 +6,7 @@ import { generateTravelPlan } from "@/lib/gemini";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Globe2 } from "lucide-react";
+import { Settings } from "@/components/Settings";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +22,7 @@ export default function Index() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to generate travel plan. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate travel plan. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -30,6 +31,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background to-secondary">
+      <Settings />
       <div className="space-y-12">
         <div className="text-center space-y-4">
           <div className="animate-float inline-block mb-4">
