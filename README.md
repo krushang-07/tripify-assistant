@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/d94eb47b-204a-4d21-b366-ca24441d4707
+**Live Link**: https://tripify-assistant.vercel.app/
 
 ## How can I edit this code?
 
