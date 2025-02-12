@@ -4,12 +4,13 @@ import type { TravelFormData } from "@/components/TravelForm";
 
 const generatePrompt = (data: TravelFormData) => {
   return `Create a detailed travel itinerary for a trip with the following details:
-  - From: ${data.source}
+  - From: ${data.source} (${data.selectedTransportation ? `via ${data.selectedTransportation.flights[0].airline}` : ''})
   - To: ${data.destination}
   - Start Date: ${data.startDate?.toLocaleDateString()}
   - End Date: ${data.endDate?.toLocaleDateString()}
   - Budget: $${data.budget}
   - Number of Travelers: ${data.travelers}
+  ${data.selectedTransportation ? `- Transportation: ${data.selectedTransportation.flights.map(f => f.flight_number).join(' → ')}` : ''}
 
 Please include:
 1. Recommended places to visit

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TransportationOptions } from "@/components/TransportationOptions";
+import type { FlightOption } from "@/lib/types/flight";
 
 interface TravelFormProps {
   onSubmit: (data: TravelFormData) => void;
@@ -21,7 +22,10 @@ export interface TravelFormData {
   endDate: Date | undefined;
   budget: string;
   travelers: string;
+  selectedTransportation?: FlightOption;
 }
+
+const mockFlightOptions: FlightOption[] = [/* Your provided mock data here */];
 
 export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
   const [formData, setFormData] = useState<TravelFormData>({
@@ -38,8 +42,12 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
     onSubmit(formData);
   };
 
+  const handleTransportationSelect = (option: FlightOption) => {
+    setFormData({ ...formData, selectedTransportation: option });
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full mx-auto">
       <div className="space-y-2">
         <Label htmlFor="source">Departure City</Label>
         <Input
@@ -161,6 +169,13 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
           />
         </div>
       </div>
+
+      {formData.source && formData.destination && (
+        <TransportationOptions 
+          options={mockFlightOptions} 
+          onSelect={handleTransportationSelect}
+        />
+      )}
 
       <Button
         type="submit"
