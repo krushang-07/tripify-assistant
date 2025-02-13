@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,9 +62,42 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
     loadFlights();
   }, [formData.source, formData.destination, formData.startDate, toast]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (!formData.source || !formData.destination || !formData.startDate) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please fill in all required fields",
+      });
+      return;
+    }
+
+    try {
+      setLoadingFlights(true);
+      const flights = await fetchFlights(formData.source, formData.destination, formData.startDate);
+      setFlightOptions(flights);
+      console.log("Fetched flights:", flights); // Debug log
+      
+      if (flights.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "No Flights Found",
+          description: "No flights available for the selected route and date.",
+        });
+        return;
+      }
+
+      onSubmit(formData);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to fetch flights",
+      });
+    } finally {
+      setLoadingFlights(false);
+    }
   };
 
   const handleTransportationSelect = (option: FlightOption) => {
