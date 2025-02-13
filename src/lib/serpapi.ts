@@ -40,40 +40,40 @@ export async function fetchFlights(from: string, to: string, date: Date) {
 
     // Check if the response has the flights_data property
     if (data.flights_data && Array.isArray(data.flights_data)) {
-      // Transform the data to match our FlightOption type
+      // Transform the data to match our FlightOption type with only essential details
       const transformedFlights: FlightOption[] = data.flights_data.map((flight: any) => ({
-        flights: [{
+        flights: flight.flights?.map((leg: any) => ({
           departure_airport: {
-            name: flight.departure_airport || from,
-            id: flight.departure_code || fromCode,
-            time: flight.departure_time || new Date().toISOString(),
+            name: leg.departure_airport?.name || "",
+            id: leg.departure_airport?.id || "",
+            time: leg.departure_airport?.time || "",
           },
           arrival_airport: {
-            name: flight.arrival_airport || to,
-            id: flight.arrival_code || toCode,
-            time: flight.arrival_time || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+            name: leg.arrival_airport?.name || "",
+            id: leg.arrival_airport?.id || "",
+            time: leg.arrival_airport?.time || "",
           },
-          duration: flight.duration_minutes || 120,
-          airplane: flight.aircraft || "Unknown",
-          airline: flight.airline || "Unknown Airline",
-          airline_logo: flight.airline_logo || "https://via.placeholder.com/150",
-          travel_class: flight.cabin_class || "Economy",
-          flight_number: flight.flight_number || "FL000",
-          legroom: flight.legroom || "Standard",
-          extensions: flight.features || [],
-        }],
+          duration: leg.duration || 0,
+          airplane: leg.airplane || "",
+          airline: leg.airline || "",
+          airline_logo: leg.airline_logo || "",
+          travel_class: leg.travel_class || "Economy",
+          flight_number: leg.flight_number || "",
+          legroom: leg.legroom || "",
+          extensions: leg.extensions || [],
+        })) || [],
         layovers: [],
-        total_duration: flight.duration_minutes || 120,
+        total_duration: flight.total_duration || 0,
         carbon_emissions: {
-          this_flight: flight.emissions?.amount || 0,
-          typical_for_this_route: flight.emissions?.average || 0,
-          difference_percent: flight.emissions?.difference || 0,
+          this_flight: 0,
+          typical_for_this_route: 0,
+          difference_percent: 0,
         },
         price: flight.price || 0,
         type: "One way",
-        airline_logo: flight.airline_logo || "https://via.placeholder.com/150",
-        extensions: flight.features || [],
-        booking_token: flight.booking_link || "dummy-token",
+        airline_logo: flight.airline_logo || "",
+        extensions: [],
+        booking_token: flight.booking_token || "",
       }));
 
       return transformedFlights;
