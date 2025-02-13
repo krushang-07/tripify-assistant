@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { FlightOption } from "@/lib/types/flight";
 import { format } from "date-fns";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TransportationOptionsProps {
   options: FlightOption[];
@@ -50,7 +52,7 @@ export function TransportationOptions({ options, onSelect }: TransportationOptio
                   {option.flights[0].airline} - ${option.price}
                 </CardTitle>
               </div>
-              <Badge variant={option.carbon_emissions.difference_percent <= 0 ? "success" : "destructive"}>
+              <Badge variant={option.carbon_emissions.difference_percent <= 0 ? "secondary" : "destructive"}>
                 {option.carbon_emissions.difference_percent <= 0 ? "Eco-friendly" : "Higher emissions"}
               </Badge>
             </div>
@@ -59,9 +61,12 @@ export function TransportationOptions({ options, onSelect }: TransportationOptio
             <div className="space-y-4">
               {option.flights.map((flight, index) => (
                 <div key={flight.flight_number}>
-                  {index > 0 && (
+                  {index > 0 && option.layovers[index - 1] && (
                     <div className="my-2 text-sm text-muted-foreground">
                       Layover at {option.layovers[index - 1].name} ({formatDuration(option.layovers[index - 1].duration)})
+                      {option.layovers[index - 1].overnight && (
+                        <Badge variant="outline" className="ml-2">Overnight</Badge>
+                      )}
                     </div>
                   )}
                   <div className="flex justify-between items-center">
@@ -87,7 +92,7 @@ export function TransportationOptions({ options, onSelect }: TransportationOptio
                   <div className="mt-2">
                     <div className="flex flex-wrap gap-2">
                       {flight.extensions.map((ext, i) => (
-                        <Badge key={i} variant="secondary" className="text-xs">
+                        <Badge key={i} variant="outline" className="text-xs">
                           {ext}
                         </Badge>
                       ))}
@@ -95,8 +100,16 @@ export function TransportationOptions({ options, onSelect }: TransportationOptio
                   </div>
                 </div>
               ))}
-              <div className="mt-4 text-sm text-muted-foreground">
-                Total duration: {formatDuration(option.total_duration)}
+              <div className="mt-4 flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">
+                  Total duration: {formatDuration(option.total_duration)}
+                </span>
+                {option.departure_token && (
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    Book Flight
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>

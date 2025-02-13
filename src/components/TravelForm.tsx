@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,8 @@ import { CalendarIcon, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TransportationOptions } from "@/components/TransportationOptions";
 import type { FlightOption } from "@/lib/types/flight";
+import { fetchFlights } from "@/lib/serpapi";
+import { useToast } from "@/components/ui/use-toast";
 
 interface TravelFormProps {
   onSubmit: (data: TravelFormData) => void;
@@ -25,8 +28,6 @@ export interface TravelFormData {
   selectedTransportation?: FlightOption;
 }
 
-const mockFlightOptions: FlightOption[] = [/* Your provided mock data here */];
-
 export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
   const [formData, setFormData] = useState<TravelFormData>({
     source: "",
@@ -36,6 +37,31 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
     budget: "",
     travelers: "",
   });
+  const [flightOptions, setFlightOptions] = useState<FlightOption[]>([]);
+  const [loadingFlights, setLoadingFlights] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadFlights = async () => {
+      if (formData.source && formData.destination && formData.startDate) {
+        try {
+          setLoadingFlights(true);
+          const flights = await fetchFlights(formData.source, formData.destination, formData.startDate);
+          setFlightOptions(flights);
+        } catch (error) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error instanceof Error ? error.message : "Failed to fetch flights",
+          });
+        } finally {
+          setLoadingFlights(false);
+        }
+      }
+    };
+
+    loadFlights();
+  }, [formData.source, formData.destination, formData.startDate, toast]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +78,7 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
         <Label htmlFor="source">Departure City</Label>
         <Input
           id="source"
-          placeholder="Enter your departure city"
+          placeholder="Enter your departure city (e.g., PEK)"
           value={formData.source}
           onChange={(e) => setFormData({ ...formData, source: e.target.value })}
           required
@@ -64,7 +90,7 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
         <Label htmlFor="destination">Destination</Label>
         <Input
           id="destination"
-          placeholder="Where do you want to go?"
+          placeholder="Where do you want to go? (e.g., AUS)"
           value={formData.destination}
           onChange={(e) =>
             setFormData({ ...formData, destination: e.target.value })
@@ -170,11 +196,18 @@ export function TravelForm({ onSubmit, isLoading }: TravelFormProps) {
         </div>
       </div>
 
-      {formData.source && formData.destination && (
-        <TransportationOptions 
-          options={mockFlightOptions} 
-          onSelect={handleTransportationSelect}
-        />
+      {loadingFlights ? (
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Loading flight options...</p>
+        </div>
+      ) : (
+        flightOptions.length > 0 && (
+          <TransportationOptions 
+            options={flightOptions} 
+            onSelect={handleTransportationSelect}
+          />
+        )
       )}
 
       <Button

@@ -14,25 +14,33 @@ import { Settings as SettingsIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export function Settings() {
-  const [apiKey, setApiKey] = useState("");
+  const [geminiKey, setGeminiKey] = useState("");
+  const [serpApiKey, setSerpApiKey] = useState("");
   const { toast } = useToast();
 
   const handleSave = () => {
-    if (!apiKey.trim()) {
+    if (!geminiKey.trim() && !serpApiKey.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please enter a valid API key",
+        description: "Please enter at least one API key",
       });
       return;
     }
 
-    localStorage.setItem("GEMINI_API_KEY", apiKey.trim());
+    if (geminiKey.trim()) {
+      localStorage.setItem("GEMINI_API_KEY", geminiKey.trim());
+    }
+    if (serpApiKey.trim()) {
+      localStorage.setItem("SERPAPI_KEY", serpApiKey.trim());
+    }
+
     toast({
       title: "Success",
-      description: "API key saved successfully",
+      description: "API keys saved successfully",
     });
-    setApiKey("");
+    setGeminiKey("");
+    setSerpApiKey("");
   };
 
   return (
@@ -52,13 +60,23 @@ export function Settings() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="apiKey">Gemini API Key</Label>
+            <Label htmlFor="geminiKey">Gemini API Key</Label>
             <Input
-              id="apiKey"
+              id="geminiKey"
               type="password"
               placeholder="Enter your Gemini API key"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              value={geminiKey}
+              onChange={(e) => setGeminiKey(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="serpApiKey">SerpAPI Key</Label>
+            <Input
+              id="serpApiKey"
+              type="password"
+              placeholder="Enter your SerpAPI key"
+              value={serpApiKey}
+              onChange={(e) => setSerpApiKey(e.target.value)}
             />
           </div>
           <Button onClick={handleSave} className="w-full">
