@@ -22,6 +22,7 @@ export interface Layover {
   duration: number;
   name: string;
   id: string;
+  overnight?: boolean; // Added overnight property as optional
 }
 
 export interface CarbonEmissions {
@@ -40,4 +41,5 @@ export interface FlightOption {
   airline_logo: string;
   extensions: string[];
   booking_token: string;
+  departure_token?: string; // Added departure_token property as optional
 }

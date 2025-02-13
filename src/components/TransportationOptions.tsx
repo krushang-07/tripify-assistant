@@ -104,7 +104,7 @@ export function TransportationOptions({ options, onSelect }: TransportationOptio
                 <span className="text-sm text-muted-foreground">
                   Total duration: {formatDuration(option.total_duration)}
                 </span>
-                {option.departure_token && (
+                {option.booking_token && (
                   <Button variant="outline" size="sm" className="gap-2">
                     <ExternalLink className="h-4 w-4" />
                     Book Flight
