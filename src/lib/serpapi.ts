@@ -21,7 +21,7 @@ export async function fetchFlights(from: string, to: string, date: Date) {
     
     // Add a proxy URL before the SerpAPI URL to handle CORS
     const proxyUrl = "https://api.allorigins.win/raw?url=";
-    const apiUrl = `https://serpapi.com/search.json?engine=google_flights&departure_id=${encodeURIComponent(fromCode)}&arrival_id=${encodeURIComponent(toCode)}&outbound_date=${formattedDate}&currency=USD&hl=en&api_key=${apiKey}`;
+    const apiUrl = `https://serpapi.com/search.json?engine=google_flights&departure_id=${encodeURIComponent(fromCode)}&arrival_id=${encodeURIComponent(toCode)}&outbound_date=${formattedDate}&type=2&currency=USD&hl=en&api_key=${apiKey}`;
     
     const encodedUrl = encodeURIComponent(apiUrl);
     const response = await fetch(`${proxyUrl}${encodedUrl}`);
