@@ -13,10 +13,29 @@ export async function fetchFlights(from: string, to: string, date: Date) {
     }
 
     const formattedDate = date.toISOString().split('T')[0];
-    const url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${from}&arrival_id=${to}&outbound_date=${formattedDate}&currency=USD&hl=en&api_key=${apiKey}`;
+    
+    // Add a proxy URL before the SerpAPI URL to handle CORS
+    const proxyUrl = "https://api.allorigins.win/raw?url=";
+    const apiUrl = `https://serpapi.com/search.json?engine=google_flights&departure_id=${encodeURIComponent(from)}&arrival_id=${encodeURIComponent(to)}&outbound_date=${formattedDate}&currency=USD&hl=en&api_key=${apiKey}`;
+    
+    const encodedUrl = encodeURIComponent(apiUrl);
+    const response = await fetch(`${proxyUrl}${encodedUrl}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.json() as SerpAPIResponse;
+    
+    if (!data.best_flights || !Array.isArray(data.best_flights)) {
+      throw new Error("Invalid response format from API");
+    }
+    
     return data.best_flights;
   } catch (error) {
     console.error("Error fetching flights:", error);
