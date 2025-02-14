@@ -29,7 +29,7 @@ export default function Index() {
     setInputMessage("");
     
     // Add user message immediately
-    const updatedMessages = [...messages, { role: "user", content: userMessage }];
+    const updatedMessages: ChatMessage[] = [...messages, { role: "user" as const, content: userMessage }];
     setMessages(updatedMessages);
 
     try {
@@ -37,7 +37,7 @@ export default function Index() {
       const response = await chatWithAssistant(userMessage, messages);
       
       // Add assistant response
-      setMessages([...updatedMessages, { role: "assistant", content: response }]);
+      setMessages([...updatedMessages, { role: "assistant" as const, content: response }]);
     } catch (error) {
       toast({
         variant: "destructive",
