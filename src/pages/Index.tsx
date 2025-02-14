@@ -8,6 +8,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Settings } from "@/components/Settings";
 import { Globe2, Send } from "lucide-react";
 import { chatWithAssistant } from "@/lib/gemini";
+import { TravelForm } from "@/components/TravelForm";
+import { TransportationOptions } from "@/components/TransportationOptions";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -52,67 +54,82 @@ export default function Index() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background to-secondary">
       <Settings />
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <div className="animate-float inline-block mb-4">
             <Globe2 className="h-16 w-16 mx-auto text-primary" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight">Travel Assistant</h1>
+          <h1 className="text-4xl font-bold tracking-tight">Travel Planner</h1>
           <p className="text-muted-foreground">
-            Ask me anything about travel planning, destinations, or tips!
+            Plan your journey and get intelligent travel assistance
           </p>
         </div>
 
-        <Card className="glassmorphism">
-          <CardContent className="p-6 space-y-4">
-            <ScrollArea className="h-[400px] pr-4">
-              <div className="space-y-4">
-                {messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Travel Form Section */}
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-semibold mb-4">Flight Search</h2>
+                <TravelForm />
+              </CardContent>
+            </Card>
+            <TransportationOptions />
+          </div>
+
+          {/* Chat Assistant Section */}
+          <Card className="glassmorphism">
+            <CardContent className="p-6 space-y-4">
+              <h2 className="text-2xl font-semibold mb-4">Travel Assistant</h2>
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-4">
+                  {messages.map((message, index) => (
                     <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
-                        message.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
+                      key={index}
+                      className={`flex ${
+                        message.role === "user" ? "justify-end" : "justify-start"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted rounded-lg p-3">
-                      <div className="flex space-x-2">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]" />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]" />
+                      <div
+                        className={`max-w-[80%] rounded-lg p-3 ${
+                          message.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap">{message.content}</p>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-muted rounded-lg p-3">
+                        <div className="flex space-x-2">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]" />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
 
-            <form onSubmit={handleSendMessage} className="flex gap-2">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask about your travel plans..."
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button type="submit" disabled={isLoading || !inputMessage.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Ask about your travel plans..."
+                  disabled={isLoading}
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={isLoading || !inputMessage.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
