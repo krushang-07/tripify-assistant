@@ -13,6 +13,16 @@ export async function fetchFlights(from: string, to: string, date: Date) {
       throw new Error("Please set your SerpAPI key in settings first");
     }
 
+    // Validate that the selected date is in the future
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      throw new Error("Please select a future date for your flight");
+    }
+
     // Convert city names to uppercase airport codes (basic conversion)
     const fromCode = from.length === 3 ? from.toUpperCase() : `/m/${from.toLowerCase()}`;
     const toCode = to.length === 3 ? to.toUpperCase() : `/m/${to.toLowerCase()}`;
@@ -35,6 +45,12 @@ export async function fetchFlights(from: string, to: string, date: Date) {
 
     // Check for API error response
     if (data.error) {
+      // Handle common API errors with more user-friendly messages
+      if (data.error.includes("Invalid API key")) {
+        throw new Error("The SerpAPI key is invalid. Please check your settings and enter a valid key.");
+      } else if (data.error.includes("cannot be in the past")) {
+        throw new Error("Please select a future date for your flight.");
+      }
       throw new Error(data.error);
     }
 
