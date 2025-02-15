@@ -1,28 +1,48 @@
 
 import { useState } from "react";
-import { TravelForm, type TravelFormData } from "@/components/TravelForm";
-import { TravelPlan } from "@/components/TravelPlan";
-import { generateTravelPlan } from "@/lib/gemini";
-import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Globe2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
 import { Settings } from "@/components/Settings";
+import { Globe2, Send } from "lucide-react";
+import { chatWithAssistant } from "@/lib/gemini";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export default function Index() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [travelPlan, setTravelPlan] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = async (data: TravelFormData) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!inputMessage.trim()) return;
+    
+    const userMessage = inputMessage.trim();
+    setInputMessage("");
+    
+    // Add user message immediately
+    const updatedMessages: ChatMessage[] = [...messages, { role: "user" as const, content: userMessage }];
+    setMessages(updatedMessages);
+
     try {
       setIsLoading(true);
-      const plan = await generateTravelPlan(data);
-      setTravelPlan(plan);
+      const response = await chatWithAssistant(userMessage, messages);
+      
+      // Add assistant response
+      setMessages([...updatedMessages, { role: "assistant" as const, content: response }]);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate travel plan. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to get response",
       });
     } finally {
       setIsLoading(false);
@@ -32,25 +52,67 @@ export default function Index() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background to-secondary">
       <Settings />
-      <div className="space-y-12">
+      <div className="max-w-2xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <div className="animate-float inline-block mb-4">
             <Globe2 className="h-16 w-16 mx-auto text-primary" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight">Tripify Assistant</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Plan your perfect trip with our AI-powered travel assistant. Enter your
-            preferences below and let us create a personalized itinerary for you.
+          <h1 className="text-4xl font-bold tracking-tight">Travel Assistant</h1>
+          <p className="text-muted-foreground">
+            Get personalized travel advice and recommendations
           </p>
         </div>
 
-        <Card className="max-w-2xl mx-auto glassmorphism">
-          <CardContent className="p-6">
-            <TravelForm onSubmit={handleSubmit} isLoading={isLoading} />
+        <Card className="glassmorphism">
+          <CardContent className="p-6 space-y-4">
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-4">
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-muted rounded-lg p-3">
+                      <div className="flex space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]" />
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+
+            <form onSubmit={handleSendMessage} className="flex gap-2">
+              <Input
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Ask about your travel plans..."
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={isLoading || !inputMessage.trim()}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
           </CardContent>
         </Card>
-
-        {travelPlan && <TravelPlan plan={travelPlan} />}
       </div>
     </div>
   );
