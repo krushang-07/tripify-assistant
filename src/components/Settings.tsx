@@ -60,6 +60,17 @@ export function Settings() {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
             />
+            <p className="text-sm text-muted-foreground">
+              Get your API key from{" "}
+              <a
+                href="https://makersuite.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Google AI Studio
+              </a>
+            </p>
           </div>
           <Button onClick={handleSave} className="w-full">
             Save Settings
